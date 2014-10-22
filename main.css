@@ -1,0 +1,48 @@
+		body {
+			font-family: Arial;
+		}
+
+		.container {
+			background: #eee;
+			padding: 1em;
+		}
+
+		.endpoints-add label {
+			width: 150px;
+			display: inline-block;
+		}
+
+		.endpoints-add div {
+			padding: 0.2em;
+		}
+
+		.endpoints-add textarea, .endpoints-add input[type=text] {
+			width: 300px;
+		}
+
+		.endpoints-add textarea {
+			height: 150px;
+		}
+
+		.error-exists input {
+			border: 1px solid red;
+		}
+
+		.error-exists::after {
+			display: inline;
+			content: 'Route already exists!';
+		}
+
+		.error-badjson textarea {
+			border: 1px solid red;
+		}
+
+		.error-badjson::after {
+			display: inline;
+			content: 'Invalid JSON!';
+		}
+
+		table th {
+			text-align: left;
+			border-bottom: 2px solid rgba(0,0,0,0.2);
+		}
