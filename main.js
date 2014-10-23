@@ -124,6 +124,7 @@ var Client = {
 
 			var route = Client.normalizeRoute(add_route.value);
 			var jsonp = add_jsonp.checked;
+			var matchAll = add_matchall.checked;
 			var retval = add_retval.value;
 
 			if(endpoints[route]) {
@@ -141,7 +142,7 @@ var Client = {
 				return;
 			}
 
-			var endpoint = { jsonp: jsonp, response: retval };
+			var endpoint = { jsonp: jsonp, matchAll: matchAll, response: retval };
 
 			// store, then rerender
 			Worker.add(route, endpoint).then(function() {
@@ -207,11 +208,7 @@ var Client = {
 			tr = document.createElement('tr');
 
 			td = document.createElement('td');
-			td.innerHTML = route;
-			tr.appendChild(td);
-
-			td = document.createElement('td');
-			td.innerHTML = endpoints[route].jsonp;
+			td.innerHTML = '<div>' + route + '</div><span>' + (endpoints[route].jsonp ? 'JSONP + JSONP' : 'JSON only') + (endpoints[route].matchAll ? ', Matches all queries' : '') + '</span>';
 			tr.appendChild(td);
 
 			td = document.createElement('td');
@@ -224,12 +221,14 @@ var Client = {
 
 			// buttons
 			button = document.createElement('button');
-			button.innerHTML = 'Delete';
+			button.tooltip = 'Deletes the route';
+			button.className = 'delete';
 			button.onclick = remove;
 			td.appendChild(button);
 
 			button = document.createElement('button');
-			button.innerHTML = 'Test (in console)';
+			button.title = 'Opens in console';
+			button.className = 'test';
 			button.onclick = test;
 			td.appendChild(button);
 

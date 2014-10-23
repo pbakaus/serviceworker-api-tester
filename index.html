@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<title>SO SO READY</title>
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto:500,400italic,300,500italic,300italic,400'>
 		<link rel="stylesheet" type="text/css" href="main.css">
 	</head>
 	<body>
@@ -10,14 +11,13 @@
 
 		<h2>Active routes</h2>
 
-		<div class=" container">
+		<div class="card">
 			
-		<table id="endpoints_table" width="100%">
+		<table id="endpoints_table" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
 				<th>Route</th>
-				<th width="100">JSONP</th>
 				<th>Response</th>
-				<th width="160">Actions</th>
+				<th width="50">Actions</th>
 			</tr>
 		</table>
 
@@ -25,17 +25,21 @@
 
 		<h2>Add new route</h2>
 
-		<div class="endpoints-add container">
+		<div class="endpoints-add card">
 			<div>
 				<label>Route:</label><input id="add_route" type="text" value="">
 			</div>
 			<div>
-				<label>JSONP Support:</label><input id="add_jsonp" type="checkbox" value="">
-			</div>
-			<div>
 				<label>JSON response:</label><textarea id="add_retval">{}</textarea>
 			</div>
-			<button id="add">Add</button>
+			<div>
+				<label>JSONP Enabled:</label><input id="add_jsonp" type="checkbox" value="">
+			</div>
+
+			<div>
+				<label>Match all:</label><input id="add_matchall" type="checkbox" value="">
+			</div>
+			<button id="add">CREATE NEW ROUTE</button>
 		</div>
 
 	<!--script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>-->

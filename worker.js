@@ -9,7 +9,7 @@ this.addEventListener('activate', function(e) {
 });
 
 /*
- * IndexedDB is heavy, convoluted shit. There, I said it.
+ * IndexedDB is heavy, convoluted shit. There, I said it. WAAAAAAH!
  */
 var DB = {
 
@@ -17,7 +17,7 @@ var DB = {
 
 	open: function(callback) {
 
-		var version = 2;
+		var version = 4;
 		var request = indexedDB.open("endpoints", version);
 
 		// We can only create Object stores in a versionchange transaction.
@@ -42,7 +42,7 @@ var DB = {
 
 	},
 
-	add: function(route, jsonp, response) {
+	add: function(route, jsonp, matchAll, response) {
 
 		console.log('trying to add endpoint to DB..');
 
@@ -54,11 +54,13 @@ var DB = {
 			var request = store.put({
 				"route": route,
 				"jsonp": jsonp,
+				"matchAll": matchAll,
 				"response" : response
 			});
 
 			trans.oncomplete = function(e) {
 				console.log('successfully added endpoint to DB!');
+				Banana.endpoints[route] = { jsonp: jsonp, matchAll: matchAll, response: response };
 				resolve();
 			};
 
@@ -116,7 +118,7 @@ var DB = {
 				return;
 			}
 
-			endpoints[result.value.route] = { jsonp: result.value.jsonp, response: result.value.response };
+			endpoints[result.value.route] = { jsonp: result.value.jsonp, matchAll: result.value.matchAll, response: result.value.response };
 
 			result.continue();
 
@@ -152,7 +154,7 @@ var Banana = {
 	actions: {
 
 		add: function(clientId, promiseId, route, endpoint) {
-			DB.add(route, endpoint.jsonp, endpoint.response).then(function() {
+			DB.add(route, endpoint.jsonp, endpoint.matchAll, endpoint.response).then(function() {
 				Banana.post(clientId, { promiseId: promiseId, message: true });
 			});
 		},
@@ -196,9 +198,40 @@ this.addEventListener('message', function(e) {
 });
 
 this.onfetch = function(event) {
+
+	if(!Banana.endpoints) {
+		return;
+	}
+
+	// Returns a JSONP response if callback is in the query
+	function getPreparedResponse(response, jsonp) {
+
+		var callback = event.request.url.match(/&callback=([^&]+)/);
+		if(callback && jsonp) {
+			return callback[1] + '(' + response + ')';
+		} else {
+			return response;
+		}
+
+	}
+
+	// loose match
 	var route = decodeURIComponent(event.request.url.match(/.+?\:\/\/.+?(\/.+?)(?:#|\?|$)/)[1]);
-	if(Banana.endpoints && Banana.endpoints[route]) {
-		console.log('Rerouting due to route match (' + route + ')...');
-		event.respondWith(new Response(Banana.endpoints[route].response));
+
+	// strict match (with ?...)
+	var fullRoute = decodeURIComponent(event.request.url.match(/.+?\:\/\/.+?(\/.+?)(?:#|$)/)[1]);
+
+	if(fullRoute in Banana.endpoints) {
+
+		console.log('Rerouting due to strict route match (' + fullRoute + ')...');
+		event.respondWith(new Response(getPreparedResponse(Banana.endpoints[fullRoute].response, Banana.endpoints[fullRoute].jsonp)));
+
+	} else if(route in Banana.endpoints) {
+
+		if(route === fullRoute || Banana.endpoints[route].matchAll) {
+			console.log('Rerouting due to loose route match (' + route + ' maps to ' + fullRoute + ')...');
+			event.respondWith(new Response(getPreparedResponse(Banana.endpoints[route].response, Banana.endpoints[route].jsonp)));
+		}
+
 	}
 };
